@@ -1,52 +1,33 @@
-const STORAGE_KEY = 'feedback-msg';
+const formData = {
+  email: '',
+  message: '',
+};
 
-form.addEventListener('input', () => {
-  const formData = new FormData(form);
-  const name = formData.get('name');
-  const message = formData.get('message');
-  const data = { name, message };
+const form = document.querySelector('.feedback-form');
+const STORAGE_KEY = 'feedback-form-state';
 
-  saveToLS('name', name);
-  saveToLS('message', message);
-  saveToLS('userData', data);
+window.addEventListener('DOMContentLoaded', () => {
+  const savedData = localStorage.getItem(STORAGE_KEY);
+  const parsedData = savedData ? JSON.parse(savedData) : {};
+  form.elements.email.value = parsedData.email || '';
+  form.elements.message.value = parsedData.message || '';
+  formData.email = parsedData.email || '';
+  formData.message = parsedData.message || '';
+});
+
+form.addEventListener('input', e => {
+  formData[e.target.name] = e.target.value.trim();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
 });
 
 form.addEventListener('submit', e => {
   e.preventDefault();
 
-  const formData = new FormData(form);
-  const name = formData.get('name');
-  const message = formData.get('message');
-  const data = { name, message };
-
-  console.log(data);
-
-  form.reset();
-
-  localStorage.removeItem('name');
-  localStorage.removeItem('message');
-  localStorage.removeItem('userData');
-});
-
-
-function saveToLS(key, value) {
-  const jsonData = JSON.stringify(value);
-  localStorage.setItem(key, jsonData);
-}
-
-function loadFromLS(key) {
-  const json = localStorage.getItem(key);
-  try {
-    const data = JSON.parse(json);
-    return data;
-  } catch {
-    return json;
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const data = loadFromLS('userData');
-
-  form.elements.name.value = data?.name ?? 'Anonymous';
-  form.elements.message.value = data?.message ?? '';
+  formData.email && formData.message
+    ? (console.log(formData),
+      form.reset(),
+      localStorage.removeItem(STORAGE_KEY),
+      (formData.email = ''),
+      (formData.message = ''))
+    : alert('Fill please all fields');
 });
